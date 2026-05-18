@@ -1,5 +1,6 @@
 const express = require("express");
 const Customer = require("../models/customer");
+const { validateCustomer } = require("../validations/customerValidation");
 const router = express.Router();
 
 // @desc get all customers
@@ -21,6 +22,10 @@ router.get("/:id", async (req, res) => {
 // @route POST /api/customers
 // @access Public
 router.post("/", async (req, res) => {
+  const { error } = validateCustomer(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
   try {
     const customer = new Customer({
       name: req.body.name,
