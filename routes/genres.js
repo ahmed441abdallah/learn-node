@@ -1,63 +1,61 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const Genre = require("../models/geners");
 const router = express.Router();
-// task 1 create restful api for api/genres
-const genres = [
-  { id: 1, name: "Action" },
-  { id: 2, name: "Comedy" },
-  { id: 3, name: "Drama" },
-  { id: 4, name: "Horror" },
-];
+
 // @desc get all genres
 // @route GET /api/genres
 // @access Public
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
+  // get all genres from database
+  const genres = await Genre.find();
+
   res.json(genres);
 });
 // @desc get genre by id
 // @route GET /api/genres/:id
 // @access Public
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   // look up and find genre
   // if not existing, return 404
-  const gener = genres.find((g) => g.id === parseInt(req.params.id));
-  if (!gener) return res.status(404).send("Genre not found.");
-  res.json(gener);
+  const genre = await Genre.findById(req.params.id);
+  if (!genre) return res.status(404).send("Genre not found.");
+  res.json(genre);
 });
 // @desc create new genre
 // @route POST /api/genres
 // @access Public
-router.post("/", (req, res) => {
-  // never trust client input, always validate it before using
-  const schema = Joi.object({
-    name: Joi.string().min(3).required(),
-  });
-  const { error } = schema.validate(req.body);
-  // return {error:{details:[{message:"name is required and should be minimum 3 characters long"}]}}
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const gener = {
-    id: genres.length + 1,
-    name: req.body.name,
-  };
-  genres.push(gener);
-  res.status(201).json(gener);
+router.post("/", async (req, res) => {
+  // create new genre
+  try {
+    const genre = new Genre({
+      name: req.body.name,
+    });
+    // save genre to database
+    await genre.save();
+    return res.json(genre);
+  } catch (err) {
+    return res.status(400).send(err.message);
+  }
 });
 // @desc update genre
 // @route PUT /api/genres/:id
 // @access Public
-router.put("/:id", (req, res) => {
-  const gener = genres.find((g) => g.id === parseInt(req.params.id));
-  if (!gener) return res.status(404).send("Genre not found.");
-  gener.name = req.body.name;
-  res.json(gener);
+router.put("/:id", async (req, res) => {
+  const genre = await Genre.findByIdAndUpdate(
+    req.params.id,
+    { name: req.body.name },
+    { new: true },
+  );
+  if (!genre) return res.status(404).send("Genre not found.");
+  res.json(genre);
 });
 // @desc delete genre
 // @route DELETE /api/genres/:id
 // @access Public
-router.delete("/:id", (req, res) => {
-  const gener = genres.find((g) => g.id === parseInt(req.params.id));
-  if (!gener) return res.status(404).send("Genre not found.");
-  const updatedGenres = genres.filter((g) => g.id !== parseInt(req.params.id));
-  res.json(updatedGenres);
+router.delete("/:id", async (req, res) => {
+  const genre = await Genre.findByIdAndDelete(req.params.id);
+  if (!genre) return res.status(404).send("Genre not found.");
+  res.json(genre);
 });
 module.exports = router;

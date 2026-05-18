@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
-const coursesRouter = require("./routes/courses");
 const genersRouter = require("./routes/genres");
+const customersRouter = require("./routes/customers");
+const mongoose = require("mongoose");
 const morgan = require("morgan");
 const { set, get } = require("mongoose");
 const app = express();
@@ -11,10 +13,17 @@ if (app.get("env") === "development") {
   app.use(morgan("tiny"));
   console.log("Morgan enabled...");
 }
+function connectDB() {
+  mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => console.log("Connected to MongoDB..."))
+    .catch((err) => console.error("Could not connect to MongoDB...", err));
+}
+connectDB();
 // Mount the courses router on the /api/courses path
-app.use("/api/courses", coursesRouter);
 // moount geners router
 app.use("/api/geners", genersRouter);
+app.use("/api/customers", customersRouter);
 
 // Home Endpoints
 app.get("/", (req, res) => {
@@ -23,51 +32,4 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
-});
-// sync programming
-// console.log("First");
-// console.log("Second");
-// setTimeout(() => {
-//   console.log("Third");
-// }, 2000);
-// console.log("Fourth");
-//---------------------------
-// Asynchronous programming
-// callback function to simulate fetching user data from a database
-// const getUSerData = (callback) => {
-//   setTimeout(() => {
-//     console.log("fetching user data from database....");
-//     const user = { id: 1, name: "John Doe" };
-//     callback(user);
-//   }, 2000);
-// };
-// getUSerData((user) => {
-//   console.log("User data received:", user);
-// });
-//---------------------------
-// Promises
-// promise have three states : pending, fulfilled, rejected
-const p = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve("Data fetched successfully!");
-  }, 2000);
-});
-// Handling the promise
-p.then((message) => {
-  console.log(message);
-}).catch((error) => {
-  console.error("Error:", error);
-});
-// using prmise
-const getUSerData = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      console.log("fetching user data from database....");
-      const user = { id: 1, name: "John Doe" };
-      resolve(user);
-    }, 2000);
-  });
-};
-getUSerData().then((user) => {
-  console.log("User data received:", user);
 });
