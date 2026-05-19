@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const Genre = require("../models/geners");
+const { Genre } = require("../models/geners");
 const router = express.Router();
 
 // @desc get all genres

@@ -2,6 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const genersRouter = require("./routes/genres");
 const customersRouter = require("./routes/customers");
+const moviesRouter = require("./routes/movies");
+const rentalsRouter = require("./routes/rental");
+
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const { set, get } = require("mongoose");
@@ -24,7 +27,8 @@ connectDB();
 // moount geners router
 app.use("/api/geners", genersRouter);
 app.use("/api/customers", customersRouter);
-
+app.use("/api/movies", moviesRouter);
+app.use("/api/rentals", rentalsRouter);
 // Home Endpoints
 app.get("/", (req, res) => {
   res.send("Hello, From express !");
